@@ -27,6 +27,7 @@ from nautilus_trader.model.identifiers import TraderId, Venue
 from nautilus_trader.model.objects import Money, Price, Quantity
 from nautilus_trader.test_kit.providers import TestInstrumentProvider
 
+from broker import router as broker_router
 from strategies.ema_cross import EMACross, EMACrossConfig
 
 VENUE = Venue("SIM")
@@ -159,6 +160,7 @@ class EngineManager:
 
 manager = EngineManager()
 app = FastAPI(title="MonShield Tracker API")
+app.include_router(broker_router)
 
 origins = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
 app.add_middleware(

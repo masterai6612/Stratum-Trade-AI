@@ -44,6 +44,12 @@ def main() -> None:
     r = client.post("/api/strategies/stop")
     assert r.status_code == 200 and r.json()["state"] == "offline", r.text
 
+    # Broker endpoints: unconfigured locally -> status says so, orders rejected
+    r = client.get("/api/broker/status")
+    assert r.status_code == 200 and r.json()["configured"] is False, r.text
+    r = client.post("/api/broker/orders", json={"symbol": "AAPL", "qty": 1, "side": "buy"})
+    assert r.status_code == 503, r.text
+
     print("SMOKE OK —", "closed positions:", pos["closed_count"], "| balances:", acct["accounts"][0]["balances"])
 
 

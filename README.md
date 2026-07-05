@@ -65,6 +65,22 @@ Open http://localhost:3000 — it redirects to `/dashboard`. Click **Initialize 
    `ALLOWED_ORIGINS=https://your-app.vercel.app,http://localhost:3000`
    The FastAPI CORS middleware reads this at startup — Railway redeploys on variable change.
 
+## Stock trading (Alpaca, paper by default)
+
+The dashboard has a **Stock trading** section backed by Alpaca's paper-trading API — simulated money, real market prices, no funds at risk.
+
+Setup (once):
+
+1. Create a free account at https://alpaca.markets and open the **Paper Trading** dashboard.
+2. Generate an API key pair (key ID + secret).
+3. In Railway → backend service → **Variables**, add `ALPACA_API_KEY` and `ALPACA_SECRET_KEY`. Railway redeploys automatically.
+
+The dashboard then shows equity/cash/buying power, an order ticket (market day orders, whole or fractional shares), open positions with unrealized P&L, and recent orders with cancel for unfilled ones. Orders placed outside market hours queue until the next open.
+
+Broker endpoints: `GET /api/broker/status`, `GET /api/broker/positions`, `POST /api/broker/orders` (`{symbol, qty, side}`), `GET /api/broker/orders`, `DELETE /api/broker/orders/{id}`.
+
+**Live trading guard**: the backend refuses the live Alpaca endpoint unless `ENVIRONMENT=live` *and* `ALPACA_BASE_URL` are both explicitly set — every other configuration falls back to paper. Switching to live means real money and real risk; test extensively on paper first.
+
 ## Going live (later)
 
 The demo trades a simulated venue. To trade a real sandbox (e.g. Binance testnet):
