@@ -77,7 +77,15 @@ export default function Dashboard() {
     setBusy(true);
     setMessage(null);
     try {
-      const r = await fetch(`${API}${path}`, { method: "POST" });
+      let r: Response;
+      try {
+        r = await fetch(`${API}${path}`, { method: "POST" });
+      } catch {
+        // Browsers auto-retry GETs on a stale kept-alive connection but never
+        // POSTs — one manual retry covers the edge closing idle connections.
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        r = await fetch(`${API}${path}`, { method: "POST" });
+      }
       if (!r.ok) {
         const body = await r.json().catch(() => null);
         setMessage(body?.detail ?? `HTTP ${r.status}`);
